@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Practice - Live Interview Simulator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Landing Page -->
+    <div id="landing-page" class="page active">
+        <div class="container">
+            <h1>🎤 AI Interview Practice</h1>
+            <p class="subtitle">Practice interviews with AI interviewers from top companies</p>
+            
+            <div class="selection-section">
+                <div class="form-group">
+                    <label for="company-select">Select Company/Industry:</label>
+                    <select id="company-select">
+                        <option value="tech-google">Google (Tech - Friendly)</option>
+                        <option value="tech-microsoft">Microsoft (Tech - Professional)</option>
+                        <option value="tech-apple">Apple (Tech - Creative)</option>
+                        <option value="finance-goldman">Goldman Sachs (Finance - Analytical)</option>
+                        <option value="finance-mckinsey">McKinsey (Consulting - Strategic)</option>
+                        <option value="startup">Startup (Fast-paced - Casual)</option>
+                        <option value="corporate">Corporate (Traditional - Formal)</option>
+                        <option value="creative-agency">Creative Agency (Design - Energetic)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="position-select">Position Type:</label>
+                    <select id="position-select">
+                        <option value="software-engineer">Software Engineer</option>
+                        <option value="product-manager">Product Manager</option>
+                        <option value="data-scientist">Data Scientist</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="sales">Sales</option>
+                        <option value="designer">Designer</option>
+                        <option value="general">General Interview</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="difficulty-select">Difficulty Level:</label>
+                    <select id="difficulty-select">
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="length-select">Interview Length:</label>
+                    <select id="length-select">
+                        <option value="short">Short (3 questions, ~5 min)</option>
+                        <option value="medium" selected>Medium (5 questions, ~10 min)</option>
+                        <option value="long">Long (8 questions, ~15 min)</option>
+                    </select>
+                </div>
+                
+                <button id="start-interview-btn" class="btn-primary">Start Interview</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interview Page -->
+    <div id="interview-page" class="page">
+        <div class="video-container">
+            <!-- Video Grid -->
+            <div class="video-grid">
+                <!-- AI Interviewer Video -->
+                <div class="video-participant interviewer-video">
+                    <video id="interviewer-video" autoplay muted playsinline>
+                        <!-- AI video placeholder - will show animated avatar -->
+                    </video>
+                    <div class="video-overlay">
+                        <div class="participant-info">
+                            <div class="participant-name" id="interviewer-name-display">Interviewer</div>
+                            <div class="participant-status">
+                                <span class="status-dot"></span>
+                                <span id="interviewer-status">Speaking...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ai-avatar-container" id="ai-avatar">
+                        <div class="ai-avatar-face">
+                            <div class="ai-eyes">
+                                <div class="ai-eye"></div>
+                                <div class="ai-eye"></div>
+                            </div>
+                            <div class="ai-mouth"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Video -->
+                <div class="video-participant user-video">
+                    <video id="user-video" autoplay playsinline></video>
+                    <div class="video-overlay">
+                        <div class="participant-info">
+                            <div class="participant-name">You</div>
+                            <div class="participant-status">
+                                <span class="status-dot" id="user-status-dot"></span>
+                                <span id="user-status">Ready</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="video-placeholder" id="video-placeholder">
+                        <div class="placeholder-icon">📹</div>
+                        <div class="placeholder-text">Camera</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Subtitles/Transcript -->
+            <div class="transcript-container">
+                <div class="transcript-bubble interviewer-transcript" id="interviewer-transcript">
+                    <p id="interviewer-text">Hello! Welcome to your interview. I'm ready when you are.</p>
+                </div>
+                <div class="transcript-bubble user-transcript" id="user-transcript" style="display: none;">
+                    <p id="user-text">Your response will appear here...</p>
+                </div>
+            </div>
+            
+            <!-- Video Controls (Zoom-style) -->
+            <div class="video-controls">
+                <button id="mic-btn" class="control-btn" title="Microphone">
+                    <span class="control-icon">🎤</span>
+                    <span class="control-label">Mic</span>
+                </button>
+                <button id="camera-btn" class="control-btn" title="Camera">
+                    <span class="control-icon">📹</span>
+                    <span class="control-label">Camera</span>
+                </button>
+                <button id="listen-btn" class="control-btn control-btn-primary" title="Speak">
+                    <span class="control-icon" id="listen-icon">🎙️</span>
+                    <span class="control-label" id="listen-text">Speak</span>
+                </button>
+                <button id="end-interview-btn" class="control-btn control-btn-danger" title="End Interview">
+                    <span class="control-icon">📞</span>
+                    <span class="control-label">End</span>
+                </button>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="interview-progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+                <div class="progress-info">
+                    <span>Question <span id="question-number">0</span> of <span id="total-questions">5</span></span>
+                    <span id="interview-timer">00:00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Page -->
+    <div id="feedback-page" class="page">
+        <div class="container">
+            <h1>📊 Interview Feedback</h1>
+            
+            <div class="feedback-summary">
+                <div class="score-card">
+                    <h3>Overall Score</h3>
+                    <div class="score-circle" id="overall-score">0%</div>
+                </div>
+                
+                <div class="feedback-sections">
+                    <div class="feedback-section">
+                        <h3>💬 Communication</h3>
+                        <div class="score-bar">
+                            <div class="score-fill" id="communication-score"></div>
+                        </div>
+                        <p id="communication-feedback"></p>
+                    </div>
+                    
+                    <div class="feedback-section">
+                        <h3>🎯 Relevance</h3>
+                        <div class="score-bar">
+                            <div class="score-fill" id="relevance-score"></div>
+                        </div>
+                        <p id="relevance-feedback"></p>
+                    </div>
+                    
+                    <div class="feedback-section">
+                        <h3>💡 Content Quality</h3>
+                        <div class="score-bar">
+                            <div class="score-fill" id="content-score"></div>
+                        </div>
+                        <p id="content-feedback"></p>
+                    </div>
+                    
+                    <div class="feedback-section">
+                        <h3>⏱️ Response Time</h3>
+                        <div class="score-bar">
+                            <div class="score-fill" id="time-score"></div>
+                        </div>
+                        <p id="time-feedback"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detailed-feedback">
+                <h3>Detailed Analysis</h3>
+                <div id="detailed-feedback-content"></div>
+            </div>
+            
+            <div class="recommendations">
+                <h3>💡 Recommendations</h3>
+                <ul id="recommendations-list"></ul>
+            </div>
+            
+            <button id="new-interview-btn" class="btn-primary">Start New Interview</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

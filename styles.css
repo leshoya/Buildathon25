@@ -1,0 +1,613 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+    overflow: hidden;
+}
+
+.page {
+    display: none;
+    min-height: 100vh;
+}
+
+.page.active {
+    display: block;
+}
+
+#interview-page {
+    padding: 0;
+    background: #1a1a1a;
+}
+
+#landing-page {
+    padding: 20px;
+}
+
+#feedback-page {
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+h1 {
+    text-align: center;
+    color: #667eea;
+    margin-bottom: 10px;
+    font-size: 2.5em;
+}
+
+.subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 40px;
+    font-size: 1.1em;
+}
+
+/* Landing Page Styles */
+.selection-section {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 16px;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.form-group select:hover {
+    border-color: #667eea;
+}
+
+.form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 20px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-secondary:hover {
+    background: #ff5252;
+}
+
+/* Video Interview Page Styles */
+.video-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #1a1a1a;
+    position: relative;
+}
+
+.video-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.video-participant {
+    position: relative;
+    background: #2a2a2a;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-participant video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    padding: 15px;
+    color: white;
+}
+
+.participant-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.participant-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.participant-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4caf50;
+    animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* AI Avatar */
+.ai-avatar-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.ai-avatar-face {
+    width: 200px;
+    height: 200px;
+    background: white;
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+.ai-eyes {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+.ai-eye {
+    width: 30px;
+    height: 30px;
+    background: #333;
+    border-radius: 50%;
+    animation: blink 3s infinite;
+}
+
+@keyframes blink {
+    0%, 90%, 100% {
+        height: 30px;
+    }
+    95% {
+        height: 5px;
+    }
+}
+
+.ai-mouth {
+    width: 60px;
+    height: 30px;
+    border: 3px solid #333;
+    border-top: none;
+    border-radius: 0 0 60px 60px;
+    animation: speak 1s infinite;
+}
+
+@keyframes speak {
+    0%, 100% {
+        height: 30px;
+    }
+    50% {
+        height: 40px;
+    }
+}
+
+.video-placeholder {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #2a2a2a;
+    color: white;
+}
+
+.video-placeholder.hidden {
+    display: none;
+}
+
+.placeholder-icon {
+    font-size: 60px;
+    margin-bottom: 10px;
+}
+
+.placeholder-text {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+/* Transcript Container */
+.transcript-container {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 800px;
+    z-index: 10;
+}
+
+.transcript-bubble {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.3s;
+}
+
+.transcript-bubble p {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.interviewer-transcript {
+    text-align: left;
+}
+
+.user-transcript {
+    text-align: right;
+    background: rgba(102, 126, 234, 0.8);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Video Controls */
+.video-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+.control-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 80px;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.control-btn.active {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.control-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.control-btn-primary:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #653a91 100%);
+}
+
+.control-btn-primary.listening {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+    animation: pulse 1.5s infinite;
+}
+
+.control-btn-danger {
+    background: #ff6b6b;
+}
+
+.control-btn-danger:hover {
+    background: #ff5252;
+}
+
+.control-icon {
+    font-size: 24px;
+}
+
+.control-label {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Progress Bar */
+.interview-progress-bar {
+    position: relative;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+.interview-progress-bar .progress-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    width: 0%;
+    transition: width 0.3s;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    color: white;
+    font-size: 14px;
+}
+
+#interview-timer {
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+}
+
+/* Feedback Page Styles */
+.feedback-summary {
+    margin-bottom: 40px;
+}
+
+.score-card {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.score-card h3 {
+    margin-bottom: 20px;
+    color: #555;
+}
+
+.score-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5em;
+    font-weight: bold;
+    margin: 0 auto;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.feedback-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.feedback-section {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 15px;
+    border-left: 4px solid #667eea;
+}
+
+.feedback-section h3 {
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.score-bar {
+    width: 100%;
+    height: 10px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.score-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    width: 0%;
+    transition: width 0.5s;
+}
+
+.feedback-section p {
+    color: #666;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.detailed-feedback {
+    background: #f9f9f9;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.detailed-feedback h3 {
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.detailed-feedback p {
+    color: #666;
+    line-height: 1.8;
+    margin-bottom: 10px;
+}
+
+.recommendations {
+    background: #fff9e6;
+    padding: 25px;
+    border-radius: 15px;
+    border-left: 4px solid #ffc107;
+    margin-bottom: 30px;
+}
+
+.recommendations h3 {
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.recommendations ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.recommendations li {
+    padding: 10px 0;
+    padding-left: 25px;
+    position: relative;
+    color: #666;
+    line-height: 1.6;
+}
+
+.recommendations li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #ffc107;
+    font-weight: bold;
+}
+
+#new-interview-btn {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    display: block;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    .video-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .video-controls {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .control-btn {
+        min-width: 60px;
+        padding: 10px 15px;
+    }
+    
+    .transcript-container {
+        width: 95%;
+        bottom: 120px;
+    }
+    
+    .feedback-sections {
+        grid-template-columns: 1fr;
+    }
+}
+
