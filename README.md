@@ -22,9 +22,33 @@ A text-to-speech live video interview website (Zoom-style) where users can pract
 - **Corporate**: Traditional and formal
 - **Creative Agency**: Energetic and dynamic
 
+## Installation & Setup
+
+### Using npm (Recommended)
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Start the development server:**
+   ```bash
+   npm start
+   ```
+   Or for auto-open in browser:
+   ```bash
+   npm run dev
+   ```
+
+3. The app will be available at `http://localhost:8080`
+
+### Alternative: Direct File Access
+
+Simply open `index.html` in a modern web browser (Note: Camera/microphone access requires HTTPS or localhost)
+
 ## How to Use
 
-1. Open `index.html` in a modern web browser (Chrome or Edge recommended for best speech recognition support)
+1. Open the application in your browser (via npm server or directly)
 2. Select your preferred company/industry, position type, difficulty level, and interview length
 3. Click "Start Interview"
 4. Allow camera and microphone access when prompted
@@ -47,7 +71,25 @@ A text-to-speech live video interview website (Zoom-style) where users can pract
 - HTML5
 - CSS3 (with modern gradients and animations)
 - JavaScript (Web Speech API for TTS and STT)
-- No external dependencies required
+- Node.js & npm for development server
+- http-server or serve for hosting
+
+## Development
+
+### Available Scripts
+
+- `npm start` - Start the development server on port 8080
+- `npm run dev` - Start server and auto-open in browser
+- `npm run build` - Build/prepare for deployment (static site, no build needed)
+- `npm run serve` - Alternative server using `serve` package
+
+### Deployment
+
+Since this is a static site, you can deploy it to:
+- **Netlify**: Drag and drop the folder or connect to Git
+- **Vercel**: `vercel` command or connect to Git
+- **GitHub Pages**: Push to GitHub and enable Pages
+- **Any static hosting**: Upload all files to your hosting provider
 
 ## Notes
 

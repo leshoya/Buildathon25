@@ -104,6 +104,7 @@ let currentQuestionIndex = 0;
 let userResponses = [];
 let interviewStartTime = null;
 let responseTimes = [];
+let questionStartTimes = []; // Track when each question was asked
 let recognition = null;
 let synthesis = window.speechSynthesis;
 let userStream = null;
@@ -199,6 +200,7 @@ async function startInterview() {
     currentQuestionIndex = 0;
     userResponses = [];
     responseTimes = [];
+    questionStartTimes = [];
     interviewStartTime = Date.now();
     
     // Update UI
@@ -207,8 +209,24 @@ async function startInterview() {
     
     showPage('interview-page');
     
-    // Start camera
-    await startCamera();
+    // Start camera (with error handling)
+    const cameraStarted = await startCamera();
+    
+    // If camera failed and we can't continue, show error and return to landing
+    if (!cameraStarted && !userStream) {
+        // Check if we can continue with audio only
+        setTimeout(async () => {
+            if (!userStream) {
+                const continueAnyway = confirm('Camera/microphone access is required for the interview. Would you like to try again?');
+                if (!continueAnyway) {
+                    showPage('landing-page');
+                } else {
+                    await startCamera();
+                }
+            }
+        }, 2000);
+        return;
+    }
     
     // Start timer
     startTimer();
@@ -219,21 +237,235 @@ async function startInterview() {
     }, 1000);
 }
 
-// Start camera
+// Check media permissions
+async function checkMediaPermissions() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        return {
+            supported: false,
+            video: false,
+            audio: false,
+            error: 'Media devices API not supported. Please use a modern browser like Chrome or Edge.'
+        };
+    }
+
+    try {
+        // Check permission state if available
+        if (navigator.permissions && navigator.permissions.query) {
+            const videoPermission = await navigator.permissions.query({ name: 'camera' }).catch(() => null);
+            const audioPermission = await navigator.permissions.query({ name: 'microphone' }).catch(() => null);
+            
+            return {
+                supported: true,
+                video: videoPermission ? videoPermission.state : 'unknown',
+                audio: audioPermission ? audioPermission.state : 'unknown'
+            };
+        }
+        return { supported: true, video: 'unknown', audio: 'unknown' };
+    } catch (error) {
+        return { supported: true, video: 'unknown', audio: 'unknown' };
+    }
+}
+
+// Start camera with better error handling
 async function startCamera() {
+    // Check if media devices are supported
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showPermissionError('Your browser does not support camera/microphone access. Please use Chrome, Edge, or Firefox.');
+        return false;
+    }
+
+    // Show loading state
+    const placeholder = document.getElementById('video-placeholder');
+    placeholder.innerHTML = '<div class="placeholder-icon">⏳</div><div class="placeholder-text">Requesting permissions...</div>';
+
+    try {
+        // Request permissions with specific constraints
+        userStream = await navigator.mediaDevices.getUserMedia({ 
+            video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                facingMode: 'user'
+            }, 
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true
+            }
+        });
+
+        const userVideo = document.getElementById('user-video');
+        userVideo.srcObject = userStream;
+        
+        // Handle video errors
+        userVideo.onerror = (error) => {
+            console.error('Video playback error:', error);
+            showPermissionError('Video playback error. Please check your camera settings.', true);
+        };
+        
+        // Wait for video to be ready
+        userVideo.onloadedmetadata = () => {
+            try {
+                userVideo.play().catch(error => {
+                    console.error('Error playing video:', error);
+                    // Video might still work, just log the error
+                });
+                placeholder.classList.add('hidden');
+                isCameraOn = true;
+                isMicOn = true;
+                updateControlButtons();
+            } catch (error) {
+                console.error('Error setting up video:', error);
+            }
+        };
+
+        return true;
+    } catch (error) {
+        console.error('Error accessing camera/microphone:', error);
+        handleMediaError(error);
+        return false;
+    }
+}
+
+// Handle media access errors
+function handleMediaError(error) {
+    let errorMessage = '';
+    let canContinue = false;
+
+    switch (error.name) {
+        case 'NotAllowedError':
+        case 'PermissionDeniedError':
+            errorMessage = 'Camera and microphone permissions were denied. Please allow access in your browser settings and refresh the page.';
+            canContinue = false;
+            break;
+        case 'NotFoundError':
+        case 'DevicesNotFoundError':
+            errorMessage = 'No camera or microphone found. You can continue without video, but microphone is required for the interview.';
+            canContinue = true;
+            // Try to get just audio
+            requestAudioOnly();
+            break;
+        case 'NotReadableError':
+        case 'TrackStartError':
+            errorMessage = 'Camera or microphone is being used by another application. Please close other apps and try again.';
+            canContinue = false;
+            break;
+        case 'OverconstrainedError':
+        case 'ConstraintNotSatisfiedError':
+            errorMessage = 'Camera settings not supported. Trying with basic settings...';
+            canContinue = true;
+            // Try with basic constraints
+            requestBasicMedia();
+            break;
+        case 'NotSupportedError':
+            errorMessage = 'Your browser does not support camera/microphone access. Please use Chrome, Edge, or Firefox.';
+            canContinue = false;
+            break;
+        case 'AbortError':
+            errorMessage = 'Permission request was aborted. Please try again.';
+            canContinue = true;
+            break;
+        default:
+            errorMessage = `Unable to access camera/microphone: ${error.message || error.name}. Please check your browser settings.`;
+            canContinue = true;
+    }
+
+    showPermissionError(errorMessage, canContinue);
+}
+
+// Request audio only as fallback (global for onclick)
+window.requestAudioOnly = async function() {
     try {
         userStream = await navigator.mediaDevices.getUserMedia({ 
-            video: true, 
-            audio: true 
+            video: false,
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true
+            }
+        });
+        const placeholder = document.getElementById('video-placeholder');
+        placeholder.innerHTML = '<div class="placeholder-icon">🎤</div><div class="placeholder-text">Audio Only Mode</div>';
+        placeholder.classList.remove('hidden');
+        isCameraOn = false;
+        isMicOn = true;
+        updateControlButtons();
+    } catch (error) {
+        console.error('Error accessing audio only:', error);
+        showPermissionError('Could not access microphone. Microphone is required for the interview.', false);
+    }
+};
+
+// Request basic media constraints
+async function requestBasicMedia() {
+    try {
+        userStream = await navigator.mediaDevices.getUserMedia({ 
+            video: true,
+            audio: true
         });
         const userVideo = document.getElementById('user-video');
         userVideo.srcObject = userStream;
         document.getElementById('video-placeholder').classList.add('hidden');
         isCameraOn = true;
         isMicOn = true;
+        updateControlButtons();
     } catch (error) {
-        console.error('Error accessing camera:', error);
-        alert('Could not access camera. Please allow camera and microphone permissions.');
+        console.error('Error with basic media:', error);
+        handleMediaError(error);
+    }
+}
+
+// Show permission error with option to continue
+function showPermissionError(message, canContinue = false) {
+    const placeholder = document.getElementById('video-placeholder');
+    const buttonHtml = canContinue ? 
+        '<br><br><button id="audio-only-btn" style="margin-top: 10px; padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">Continue with Audio Only</button>' : 
+        '<br><br><button id="retry-permissions-btn" style="margin-top: 10px; padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">Retry</button>';
+    
+    placeholder.innerHTML = `
+        <div class="placeholder-icon">⚠️</div>
+        <div class="placeholder-text" style="max-width: 300px; text-align: center; padding: 10px; font-size: 14px; line-height: 1.5;">
+            ${message}
+            ${buttonHtml}
+        </div>
+    `;
+    placeholder.classList.remove('hidden');
+    
+    // Add event listeners for buttons
+    const audioOnlyBtn = document.getElementById('audio-only-btn');
+    if (audioOnlyBtn) {
+        audioOnlyBtn.addEventListener('click', window.requestAudioOnly);
+    }
+    
+    const retryBtn = document.getElementById('retry-permissions-btn');
+    if (retryBtn) {
+        retryBtn.addEventListener('click', () => {
+            startCamera();
+        });
+    }
+}
+
+// Update control button states
+function updateControlButtons() {
+    const micBtn = document.getElementById('mic-btn');
+    const cameraBtn = document.getElementById('camera-btn');
+    
+    if (micBtn) {
+        if (isMicOn && userStream && userStream.getAudioTracks().length > 0) {
+            micBtn.classList.add('active');
+            micBtn.querySelector('.control-icon').textContent = '🎤';
+        } else {
+            micBtn.classList.remove('active');
+            micBtn.querySelector('.control-icon').textContent = '🔇';
+        }
+    }
+    
+    if (cameraBtn) {
+        if (isCameraOn && userStream && userStream.getVideoTracks().length > 0) {
+            cameraBtn.classList.add('active');
+            cameraBtn.querySelector('.control-icon').textContent = '📹';
+        } else {
+            cameraBtn.classList.remove('active');
+            cameraBtn.querySelector('.control-icon').textContent = '📷';
+        }
     }
 }
 
@@ -250,43 +482,56 @@ function stopCamera() {
 
 // Toggle microphone
 function toggleMic() {
-    if (userStream) {
-        const audioTracks = userStream.getAudioTracks();
-        isMicOn = !isMicOn;
-        audioTracks.forEach(track => {
-            track.enabled = isMicOn;
-        });
-        const micBtn = document.getElementById('mic-btn');
-        if (isMicOn) {
-            micBtn.classList.add('active');
-            micBtn.querySelector('.control-icon').textContent = '🎤';
-        } else {
-            micBtn.classList.remove('active');
-            micBtn.querySelector('.control-icon').textContent = '🔇';
-        }
+    if (!userStream) {
+        // Try to request audio if not available
+        requestAudioOnly();
+        return;
     }
+    
+    const audioTracks = userStream.getAudioTracks();
+    if (audioTracks.length === 0) {
+        // No audio tracks, try to get them
+        requestAudioOnly();
+        return;
+    }
+    
+    isMicOn = !isMicOn;
+    audioTracks.forEach(track => {
+        track.enabled = isMicOn;
+    });
+    updateControlButtons();
 }
 
 // Toggle camera
 function toggleCamera() {
-    if (userStream) {
-        const videoTracks = userStream.getVideoTracks();
-        isCameraOn = !isCameraOn;
-        videoTracks.forEach(track => {
-            track.enabled = isCameraOn;
-        });
-        const cameraBtn = document.getElementById('camera-btn');
-        const placeholder = document.getElementById('video-placeholder');
-        if (isCameraOn) {
-            cameraBtn.classList.add('active');
-            cameraBtn.querySelector('.control-icon').textContent = '📹';
-            placeholder.classList.add('hidden');
-        } else {
-            cameraBtn.classList.remove('active');
-            cameraBtn.querySelector('.control-icon').textContent = '📷';
-            placeholder.classList.remove('hidden');
-        }
+    if (!userStream) {
+        // Try to request video if not available
+        startCamera();
+        return;
     }
+    
+    const videoTracks = userStream.getVideoTracks();
+    const placeholder = document.getElementById('video-placeholder');
+    
+    if (videoTracks.length === 0) {
+        // No video tracks, try to get them
+        startCamera();
+        return;
+    }
+    
+    isCameraOn = !isCameraOn;
+    videoTracks.forEach(track => {
+        track.enabled = isCameraOn;
+    });
+    
+    if (isCameraOn) {
+        placeholder.classList.add('hidden');
+    } else {
+        placeholder.innerHTML = '<div class="placeholder-icon">📷</div><div class="placeholder-text">Camera Off</div>';
+        placeholder.classList.remove('hidden');
+    }
+    
+    updateControlButtons();
 }
 
 // Start timer
@@ -313,6 +558,10 @@ function askQuestion(index) {
     currentQuestionIndex = index;
     const question = currentInterview.questions[index];
     
+    // Track when this question was asked (after speech ends)
+    const questionAskedTime = Date.now();
+    questionStartTimes[index] = questionAskedTime;
+    
     // Update UI
     document.getElementById('interviewer-text').textContent = question;
     document.getElementById('interviewer-transcript').style.display = 'block';
@@ -328,7 +577,7 @@ function askQuestion(index) {
     // Animate AI avatar
     animateAvatarSpeaking();
     
-    // Speak question
+    // Speak question and track when question actually starts (after speech)
     speakText(question);
     
     updateStatus('Ready to listen');
@@ -337,13 +586,23 @@ function askQuestion(index) {
 
 // Handle user response
 function handleUserResponse(transcript) {
-    const responseTime = Date.now() - interviewStartTime;
-    responseTimes.push(responseTime);
+    const currentTime = Date.now();
+    const questionStartTime = questionStartTimes[currentQuestionIndex] || interviewStartTime;
+    const responseDuration = currentTime - questionStartTime; // Time spent on this question
+    
+    // Store response time data
+    responseTimes.push({
+        questionIndex: currentQuestionIndex,
+        startTime: questionStartTime,
+        endTime: currentTime,
+        duration: responseDuration
+    });
     
     userResponses.push({
         question: currentInterview.questions[currentQuestionIndex],
         answer: transcript,
-        time: responseTime
+        time: currentTime - interviewStartTime,
+        responseDuration: responseDuration
     });
     
     // Update UI
@@ -400,6 +659,10 @@ function speakText(text) {
         stopAvatarSpeaking();
         updateStatus('Ready to listen');
         document.getElementById('interviewer-status').textContent = 'Listening...';
+        // Update question start time after speech ends
+        if (questionStartTimes[currentQuestionIndex] === undefined) {
+            questionStartTimes[currentQuestionIndex] = Date.now();
+        }
     };
     
     synthesis.speak(utterance);
@@ -494,31 +757,161 @@ function generateFeedback() {
     const answeredQuestions = userResponses.length;
     const completionRate = (answeredQuestions / totalQuestions) * 100;
     
-    // Analyze responses
-    const avgResponseLength = userResponses.reduce((sum, r) => sum + r.answer.length, 0) / Math.max(answeredQuestions, 1);
-    const avgResponseTime = responseTimes.length > 0 ? 
-        responseTimes.reduce((sum, t) => sum + t, 0) / responseTimes.length : 0;
+    if (answeredQuestions === 0) {
+        // No responses - set minimum scores
+        setScores(0, 0, 0, 0, 0);
+        return;
+    }
     
-    // Analyze response quality indicators
-    const hasExamples = userResponses.some(r => 
-        r.answer.toLowerCase().includes('example') || 
-        r.answer.toLowerCase().includes('for instance') ||
-        r.answer.toLowerCase().includes('i ') ||
-        r.answer.toLowerCase().includes('we ')
+    // Analyze responses with better metrics
+    const responses = userResponses.map((r, idx) => {
+        const answer = r.answer.toLowerCase();
+        const words = r.answer.split(/\s+/).filter(w => w.length > 0);
+        const wordCount = words.length;
+        const charCount = r.answer.length;
+        const responseDuration = r.responseDuration || 0;
+        
+        // Quality indicators
+        const hasExamples = /(example|instance|for example|such as|like when|case|scenario)/i.test(r.answer);
+        const hasPersonalPronouns = /(i |we |my |our |me |us )/i.test(r.answer);
+        const hasNumbers = /\d+/.test(r.answer);
+        const hasActionWords = /(achieved|implemented|developed|created|improved|led|managed|designed|built|solved|delivered|accomplished|executed|established)/i.test(r.answer);
+        const hasResults = /(result|outcome|impact|improvement|increase|decrease|success|achievement)/i.test(r.answer);
+        const hasTimeframes = /(month|year|week|day|quarter|period|duration)/i.test(r.answer);
+        
+        // Calculate quality score for this response (0-100)
+        let qualityScore = 0;
+        
+        // Length scoring (optimal: 50-200 words)
+        if (wordCount >= 20 && wordCount <= 200) {
+            qualityScore += 25;
+        } else if (wordCount >= 10 && wordCount < 20) {
+            qualityScore += 15;
+        } else if (wordCount > 200) {
+            qualityScore += 20; // Too long, but still gets points
+        } else {
+            qualityScore += Math.max(0, wordCount * 1.5); // Very short responses
+        }
+        
+        // Content quality indicators
+        if (hasExamples) qualityScore += 20;
+        if (hasPersonalPronouns) qualityScore += 10;
+        if (hasActionWords) qualityScore += 15;
+        if (hasNumbers) qualityScore += 10;
+        if (hasResults) qualityScore += 10;
+        if (hasTimeframes) qualityScore += 5;
+        
+        // Response time scoring (optimal: 10-60 seconds per question)
+        let timeScore = 0;
+        const seconds = responseDuration / 1000;
+        if (seconds >= 10 && seconds <= 60) {
+            timeScore = 10; // Optimal response time
+        } else if (seconds >= 5 && seconds < 10) {
+            timeScore = 7; // Too quick
+        } else if (seconds > 60 && seconds <= 120) {
+            timeScore = 8; // A bit long
+        } else if (seconds > 120) {
+            timeScore = 5; // Too long
+        } else {
+            timeScore = 3; // Very quick
+        }
+        qualityScore += timeScore;
+        
+        return {
+            wordCount,
+            charCount,
+            responseDuration,
+            qualityScore: Math.min(100, qualityScore),
+            hasExamples,
+            hasNumbers,
+            hasActionWords,
+            hasResults,
+            hasPersonalPronouns
+        };
+    });
+    
+    // Calculate aggregate metrics
+    const avgWordCount = responses.reduce((sum, r) => sum + r.wordCount, 0) / answeredQuestions;
+    const avgCharCount = responses.reduce((sum, r) => sum + r.charCount, 0) / answeredQuestions;
+    const avgQualityScore = responses.reduce((sum, r) => sum + r.qualityScore, 0) / answeredQuestions;
+    const avgResponseTime = responses.reduce((sum, r) => sum + (r.responseDuration / 1000), 0) / answeredQuestions;
+    
+    // Count quality indicators across all responses
+    const totalExamples = responses.filter(r => r.hasExamples).length;
+    const totalNumbers = responses.filter(r => r.hasNumbers).length;
+    const totalActionWords = responses.filter(r => r.hasActionWords).length;
+    const totalResults = responses.filter(r => r.hasResults).length;
+    const totalPersonalPronouns = responses.filter(r => r.hasPersonalPronouns).length;
+    
+    // Calculate individual scores (0-100 scale)
+    
+    // Communication Score (40% completion, 30% length appropriateness, 30% clarity indicators)
+    const communicationBase = completionRate * 0.4;
+    const lengthScore = (avgWordCount >= 20 && avgWordCount <= 200) ? 30 : 
+                       (avgWordCount >= 10 && avgWordCount < 20) ? 20 : 
+                       (avgWordCount > 200) ? 25 : Math.min(30, avgWordCount * 1.5);
+    const clarityScore = (totalPersonalPronouns / answeredQuestions) * 15 + 
+                        (totalExamples / answeredQuestions) * 15;
+    const communicationScore = Math.min(100, Math.max(0, communicationBase + lengthScore + clarityScore));
+    
+    // Relevance Score (50% completion, 30% response quality, 20% consistency)
+    const relevanceBase = completionRate * 0.5;
+    const qualityComponent = avgQualityScore * 0.3;
+    const consistencyScore = (responses.filter(r => r.qualityScore >= 50).length / answeredQuestions) * 20;
+    const relevanceScore = Math.min(100, Math.max(0, relevanceBase + qualityComponent + consistencyScore));
+    
+    // Content Quality Score (30% completion, 40% content indicators, 30% depth)
+    const contentBase = completionRate * 0.3;
+    const contentIndicators = (totalExamples / answeredQuestions) * 20 +
+                             (totalActionWords / answeredQuestions) * 10 +
+                             (totalNumbers / answeredQuestions) * 10;
+    const depthScore = (avgWordCount >= 50) ? 30 : (avgWordCount >= 30) ? 20 : (avgWordCount >= 20) ? 15 : Math.min(30, avgWordCount * 1.5);
+    const contentScore = Math.min(100, Math.max(0, contentBase + contentIndicators + depthScore));
+    
+    // Response Time Score (optimal: 10-60 seconds per question)
+    let timeScore = 100;
+    if (avgResponseTime < 5) {
+        timeScore = 60 - (5 - avgResponseTime) * 5; // Too quick
+    } else if (avgResponseTime >= 5 && avgResponseTime <= 10) {
+        timeScore = 70 + (avgResponseTime - 5) * 2; // Getting better
+    } else if (avgResponseTime > 10 && avgResponseTime <= 60) {
+        timeScore = 100 - ((avgResponseTime - 10) / 50) * 20; // Optimal range
+    } else if (avgResponseTime > 60 && avgResponseTime <= 120) {
+        timeScore = 80 - ((avgResponseTime - 60) / 60) * 30; // Getting long
+    } else {
+        timeScore = Math.max(40, 50 - ((avgResponseTime - 120) / 60) * 10); // Too long
+    }
+    timeScore = Math.min(100, Math.max(0, timeScore));
+    
+    // Overall score (weighted average)
+    const overallScore = Math.round(
+        communicationScore * 0.25 +
+        relevanceScore * 0.25 +
+        contentScore * 0.30 +
+        timeScore * 0.20
     );
-    const hasNumbers = userResponses.some(r => /\d+/.test(r.answer));
-    const hasActionWords = userResponses.some(r => 
-        /(achieved|implemented|developed|created|improved|led|managed)/i.test(r.answer)
-    );
     
-    // Calculate scores (more sophisticated scoring)
-    let communicationScore = Math.min(100, Math.max(60, completionRate * 0.8 + (avgResponseLength > 50 ? 15 : 0) + (hasExamples ? 10 : 0)));
-    let relevanceScore = Math.min(100, Math.max(65, completionRate * 0.85 + 10 + (avgResponseLength > 30 ? 5 : 0)));
-    let contentScore = Math.min(100, Math.max(70, completionRate * 0.75 + (avgResponseLength > 100 ? 15 : 0) + (hasExamples ? 10 : 0) + (hasActionWords ? 5 : 0) + (hasNumbers ? 5 : 0)));
-    let timeScore = Math.min(100, Math.max(60, 100 - (avgResponseTime > 30000 ? 15 : 0) - (avgResponseTime < 5000 ? 10 : 0)));
+    // Store scores for UI update
+    setScores(overallScore, communicationScore, relevanceScore, contentScore, timeScore);
     
-    const overallScore = Math.round((communicationScore + relevanceScore + contentScore + timeScore) / 4);
-    
+    // Store detailed metrics for feedback generation
+    window.interviewMetrics = {
+        totalQuestions,
+        answeredQuestions,
+        completionRate,
+        avgWordCount,
+        avgCharCount,
+        avgResponseTime,
+        totalExamples,
+        totalNumbers,
+        totalActionWords,
+        totalResults,
+        responses
+    };
+}
+
+// Helper function to set scores and update UI
+function setScores(overallScore, communicationScore, relevanceScore, contentScore, timeScore) {
     // Update UI
     document.getElementById('overall-score').textContent = overallScore + '%';
     
@@ -530,61 +923,92 @@ function generateFeedback() {
         document.getElementById('time-score').style.width = timeScore + '%';
     }, 100);
     
-    // Generate feedback text
+    // Generate feedback text based on scores
+    generateFeedbackText(communicationScore, relevanceScore, contentScore, timeScore);
+}
+
+// Generate feedback text
+function generateFeedbackText(communicationScore, relevanceScore, contentScore, timeScore) {
+    
+    const metrics = window.interviewMetrics || {};
+    
     document.getElementById('communication-feedback').textContent = 
-        communicationScore >= 80 ? 
-            'Excellent communication! You provided clear and articulate responses.' :
-        communicationScore >= 65 ?
-            'Good communication skills. Try to be more detailed in your explanations.' :
-            'Work on expressing your thoughts more clearly and completely.';
+        communicationScore >= 85 ? 
+            'Excellent communication! You provided clear, articulate, and well-structured responses.' :
+        communicationScore >= 70 ?
+            'Good communication skills. Your responses were clear, though some could be more detailed.' :
+        communicationScore >= 55 ?
+            'Adequate communication. Work on expressing your thoughts more clearly and providing more context.' :
+            'Focus on improving clarity and completeness. Practice articulating your ideas more effectively.';
     
     document.getElementById('relevance-feedback').textContent =
-        relevanceScore >= 80 ?
-            'Your answers were highly relevant to the questions asked.' :
-        relevanceScore >= 65 ?
-            'Mostly relevant responses. Focus on directly addressing the question.' :
-            'Some answers could be more directly related to the questions.';
+        relevanceScore >= 85 ?
+            'Your answers were highly relevant and directly addressed each question with consistency.' :
+        relevanceScore >= 70 ?
+            'Mostly relevant responses. Some answers could be more directly tied to the questions asked.' :
+        relevanceScore >= 55 ?
+            'Relevance needs improvement. Focus on directly answering what was asked before adding extra details.' :
+            'Work on staying on topic and directly addressing the questions. Avoid going off on tangents.';
     
     document.getElementById('content-feedback').textContent =
-        contentScore >= 80 ?
-            'Strong content with good examples and details.' :
-        contentScore >= 65 ?
-            'Decent content. Consider adding more specific examples.' :
-            'Try to provide more detailed examples and concrete experiences.';
+        contentScore >= 85 ?
+            'Strong content with excellent examples, specific details, and quantifiable results.' :
+        contentScore >= 70 ?
+            'Good content quality. Consider adding more specific examples and measurable outcomes.' :
+        contentScore >= 55 ?
+            'Decent content. Include more concrete examples, action words, and quantifiable data.' :
+            'Enhance your responses with specific examples, measurable results, and action-oriented language.';
     
     document.getElementById('time-feedback').textContent =
-        timeScore >= 80 ?
-            'Good pacing. You responded in a timely manner.' :
-        timeScore >= 65 ?
-            'Adequate response time. Try to be more concise when possible.' :
-            'Consider working on responding more quickly while maintaining quality.';
+        timeScore >= 85 ?
+            'Excellent pacing. You responded in an optimal time frame (10-60 seconds per question).' :
+        timeScore >= 70 ?
+            'Good response timing. Most answers were well-paced, though some could be more concise.' :
+        timeScore >= 55 ?
+            'Adequate timing. Work on finding the right balance between thoroughness and conciseness.' :
+            'Response timing needs improvement. Aim for 10-60 seconds per question while maintaining quality.';
     
     // Detailed feedback
+    const answeredQuestions = metrics.answeredQuestions || 0;
+    const totalQuestions = metrics.totalQuestions || 0;
+    const completionRate = metrics.completionRate || 0;
+    const avgWordCount = metrics.avgWordCount || 0;
+    const avgResponseTime = metrics.avgResponseTime || 0;
+    const totalExamples = metrics.totalExamples || 0;
+    const totalNumbers = metrics.totalNumbers || 0;
+    const totalActionWords = metrics.totalActionWords || 0;
+    
     let detailedContent = `
         <p><strong>Interview Summary:</strong></p>
         <p>You completed ${answeredQuestions} out of ${totalQuestions} questions (${Math.round(completionRate)}% completion rate).</p>
-        <p>Average response length: ${Math.round(avgResponseLength)} characters.</p>
-        <p>Average response time: ${Math.round(avgResponseTime / 1000)} seconds per question.</p>
+        <p>Average response length: ${Math.round(avgWordCount)} words (${Math.round(metrics.avgCharCount || 0)} characters).</p>
+        <p>Average response time: ${Math.round(avgResponseTime)} seconds per question.</p>
         <p>Your interview style matched well with the ${currentInterview.personality} personality of the interviewer from ${currentInterview.name}.</p>
     `;
     
     if (userResponses.length > 0) {
-        detailedContent += '<p><strong>Response Analysis:</strong></p><ul>';
+        detailedContent += '<p><strong>Response Quality Analysis:</strong></p><ul>';
+        const responses = metrics.responses || [];
         userResponses.forEach((response, index) => {
-            const quality = response.answer.length > 150 ? 'detailed' : response.answer.length > 80 ? 'moderate' : 'brief';
-            const hasExample = /(example|instance|i |we |project|experience)/i.test(response.answer);
-            detailedContent += `<li><strong>Question ${index + 1}:</strong> ${quality} response${hasExample ? ' with examples' : ''} (${response.answer.length} chars)</li>`;
+            const resp = responses[index] || {};
+            const quality = resp.qualityScore >= 70 ? 'excellent' : resp.qualityScore >= 55 ? 'good' : resp.qualityScore >= 40 ? 'adequate' : 'needs improvement';
+            const indicators = [];
+            if (resp.hasExamples) indicators.push('examples');
+            if (resp.hasNumbers) indicators.push('quantifiable data');
+            if (resp.hasActionWords) indicators.push('action words');
+            const indicatorsText = indicators.length > 0 ? ` (${indicators.join(', ')})` : '';
+            detailedContent += `<li><strong>Question ${index + 1}:</strong> ${quality} quality response${indicatorsText} - ${resp.wordCount || 0} words, ${Math.round((resp.responseDuration || 0) / 1000)}s</li>`;
         });
         detailedContent += '</ul>';
         
-        if (hasExamples) {
-            detailedContent += '<p>✓ You effectively used examples in your responses, which strengthens your answers.</p>';
+        if (totalExamples > 0) {
+            detailedContent += `<p>✓ You used examples in ${totalExamples} out of ${answeredQuestions} responses, which strengthens your answers.</p>`;
         }
-        if (hasNumbers) {
-            detailedContent += '<p>✓ You included quantifiable data, which adds credibility to your responses.</p>';
+        if (totalNumbers > 0) {
+            detailedContent += `<p>✓ You included quantifiable data in ${totalNumbers} responses, adding credibility to your answers.</p>`;
         }
-        if (hasActionWords) {
-            detailedContent += '<p>✓ You used action-oriented language, demonstrating your proactive approach.</p>';
+        if (totalActionWords > 0) {
+            detailedContent += `<p>✓ You used action-oriented language in ${totalActionWords} responses, demonstrating a proactive approach.</p>`;
         }
     }
     

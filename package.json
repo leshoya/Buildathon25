@@ -1,0 +1,27 @@
+{
+  "name": "ai-interview-practice",
+  "version": "1.0.0",
+  "description": "AI Interview Practice - Live Video Interview Simulator",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server -p 8080 -c-1 --cors",
+    "dev": "http-server -p 8080 -c-1 --cors -o",
+    "build": "echo 'Static site - no build needed' && npm run copy",
+    "copy": "echo 'Files ready for deployment'",
+    "serve": "serve -s . -l 8080"
+  },
+  "keywords": [
+    "interview",
+    "ai",
+    "practice",
+    "video",
+    "speech-recognition"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "serve": "^14.2.1"
+  }
+}
+
