@@ -3,15 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Interview Practice - Live Interview Simulator</title>
+    <title>CrackEd - AI Interview Practice</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Landing Page -->
     <div id="landing-page" class="page active">
         <div class="container">
-            <h1>🎤 AI Interview Practice</h1>
-            <p class="subtitle">Practice interviews with AI interviewers from top companies</p>
+            <div class="logo-container">
+                <h1 class="app-title-cracked">CrackEd</h1>
+                <div class="cracked-egg-logo">
+                    <img src="logo.png" alt="CrackEd Logo" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" class="egg-svg" style="display: none;">
+                        <!-- Fallback SVG if image doesn't load -->
+                        <path d="M 100 30 Q 130 30 150 60 Q 160 90 160 140 Q 160 190 150 210 Q 130 230 100 230 Q 70 230 50 210 Q 40 190 40 140 Q 40 90 50 60 Q 70 30 100 30 Z" 
+                              fill="none" 
+                              stroke="#9333ea" 
+                              stroke-width="8" 
+                              stroke-linecap="round" 
+                              stroke-linejoin="round"/>
+                        <path d="M 60 120 Q 70 115 80 120 Q 90 125 100 120 Q 110 115 120 120 Q 130 125 140 120" 
+                              fill="none" 
+                              stroke="#9333ea" 
+                              stroke-width="6" 
+                              stroke-linecap="round" 
+                              stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+            <p class="subtitle">Master your interview skills with AI-powered practice sessions</p>
             
             <div class="selection-section">
                 <div class="form-group">
@@ -214,7 +237,10 @@
                 <ul id="recommendations-list"></ul>
             </div>
             
-            <button id="new-interview-btn" class="btn-primary">Start New Interview</button>
+            <div class="feedback-actions">
+                <button id="back-btn" class="btn-secondary">← Back to Home</button>
+                <button id="new-interview-btn" class="btn-primary">Start New Interview</button>
+            </div>
         </div>
     </div>
 
