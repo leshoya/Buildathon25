@@ -111,6 +111,7 @@ let userStream = null;
 let isMicOn = true;
 let isCameraOn = true;
 let timerInterval = null;
+let isAskingQuestion = false; // Prevent multiple questions at once
 
 // Initialize speech recognition
 function initSpeechRecognition() {
@@ -150,6 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('mic-btn').addEventListener('click', toggleMic);
     document.getElementById('camera-btn').addEventListener('click', toggleCamera);
     document.getElementById('new-interview-btn').addEventListener('click', () => {
+        showPage('landing-page');
+        stopCamera();
+    });
+    document.getElementById('back-btn').addEventListener('click', () => {
         showPage('landing-page');
         stopCamera();
     });
@@ -202,6 +207,7 @@ async function startInterview() {
     responseTimes = [];
     questionStartTimes = [];
     interviewStartTime = Date.now();
+    isAskingQuestion = false; // Reset question asking flag
     
     // Update UI
     document.getElementById('interviewer-name-display').textContent = currentInterview.name;
@@ -231,10 +237,12 @@ async function startInterview() {
     // Start timer
     startTimer();
     
-    // Start with greeting
+    // Start with greeting - wait a bit for page to be ready
     setTimeout(() => {
-        askQuestion(0);
-    }, 1000);
+        if (currentInterview && currentInterview.questions.length > 0) {
+            askQuestion(0);
+        }
+    }, 1500);
 }
 
 // Check media permissions
@@ -555,14 +563,32 @@ function askQuestion(index) {
         return;
     }
     
+    // Prevent multiple questions from being asked at once
+    if (isAskingQuestion) {
+        console.log('Already asking a question, waiting...');
+        setTimeout(() => {
+            askQuestion(index);
+        }, 500);
+        return;
+    }
+    
+    isAskingQuestion = true;
+    
+    // Cancel any ongoing speech before asking new question
+    if (synthesis.speaking) {
+        synthesis.cancel();
+        // Wait a bit for cancellation to complete
+        setTimeout(() => {
+            isAskingQuestion = false;
+            askQuestion(index);
+        }, 300);
+        return;
+    }
+    
     currentQuestionIndex = index;
     const question = currentInterview.questions[index];
     
-    // Track when this question was asked (after speech ends)
-    const questionAskedTime = Date.now();
-    questionStartTimes[index] = questionAskedTime;
-    
-    // Update UI
+    // Update UI first
     document.getElementById('interviewer-text').textContent = question;
     document.getElementById('interviewer-transcript').style.display = 'block';
     document.getElementById('user-transcript').style.display = 'none';
@@ -577,8 +603,8 @@ function askQuestion(index) {
     // Animate AI avatar
     animateAvatarSpeaking();
     
-    // Speak question and track when question actually starts (after speech)
-    speakText(question);
+    // Speak question - question start time will be set when speech ends
+    speakText(question, index);
     
     updateStatus('Ready to listen');
     document.getElementById('user-status').textContent = 'Ready';
@@ -622,9 +648,15 @@ function handleUserResponse(transcript) {
 }
 
 // Text to speech
-function speakText(text) {
+function speakText(text, questionIndex) {
+    // Cancel any ongoing speech
     if (synthesis.speaking) {
         synthesis.cancel();
+        // Wait for cancellation
+        setTimeout(() => {
+            speakText(text, questionIndex);
+        }, 200);
+        return;
     }
     
     const utterance = new SpeechSynthesisUtterance(text);
@@ -659,13 +691,28 @@ function speakText(text) {
         stopAvatarSpeaking();
         updateStatus('Ready to listen');
         document.getElementById('interviewer-status').textContent = 'Listening...';
-        // Update question start time after speech ends
-        if (questionStartTimes[currentQuestionIndex] === undefined) {
-            questionStartTimes[currentQuestionIndex] = Date.now();
-        }
+        // Set question start time AFTER speech ends (this is when user can start responding)
+        const questionIdx = questionIndex !== undefined ? questionIndex : currentQuestionIndex;
+        questionStartTimes[questionIdx] = Date.now();
+        // Allow next question to be asked
+        isAskingQuestion = false;
     };
     
-    synthesis.speak(utterance);
+    utterance.onerror = (error) => {
+        console.error('Speech synthesis error:', error);
+        // Even if speech fails, set the question start time and continue
+        const questionIdx = questionIndex !== undefined ? questionIndex : currentQuestionIndex;
+        questionStartTimes[questionIdx] = Date.now();
+        stopAvatarSpeaking();
+        document.getElementById('interviewer-status').textContent = 'Listening...';
+        // Allow next question to be asked even on error
+        isAskingQuestion = false;
+    };
+    
+    // Use a small delay to ensure previous speech is fully cancelled
+    setTimeout(() => {
+        synthesis.speak(utterance);
+    }, 100);
 }
 
 // Animate avatar when speaking
