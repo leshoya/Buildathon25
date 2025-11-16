@@ -95,6 +95,210 @@ const interviewConfigs = {
             'What inspires your work?',
             'How do you stay creative under tight deadlines?'
         ]
+    },
+    'tech-amazon': {
+        name: 'Chen from Amazon',
+        personality: 'professional',
+        style: 'leadership-focused',
+        questions: [
+            'Tell me about a time when you had to dive deep into a problem.',
+            'Describe a situation where you had to earn trust with a team or stakeholder.',
+            'Give me an example of when you took a calculated risk that paid off.',
+            'Tell me about a time you delivered results under tight constraints.',
+            'How do you approach ownership and accountability in your work?'
+        ]
+    },
+    'tech-meta': {
+        name: 'Jordan from Meta',
+        personality: 'friendly',
+        style: 'impact-driven',
+        questions: [
+            'Tell me about yourself and what excites you about Meta.',
+            'Describe a project where you moved fast and shipped something impactful.',
+            'How do you approach building products that scale to billions of users?',
+            'Tell me about a time you had to be bold and take initiative.',
+            'What\'s your approach to getting things done in ambiguous situations?'
+        ]
+    },
+    'tech-nvidia': {
+        name: 'Dr. Patel from NVIDIA',
+        personality: 'technical',
+        style: 'innovation-focused',
+        questions: [
+            'Walk me through your technical background and areas of expertise.',
+            'Tell me about a technically challenging problem you\'ve solved.',
+            'How do you approach optimizing for performance at scale?',
+            'Describe your experience with parallel computing or GPU programming.',
+            'What emerging technologies are you most excited about?'
+        ]
+    },
+    'tech-netflix': {
+        name: 'Sam from Netflix',
+        personality: 'casual',
+        style: 'culture-focused',
+        questions: [
+            'Tell me about yourself and why Netflix interests you.',
+            'Give me an example of when you showed exceptional judgment.',
+            'How do you approach freedom and responsibility in your work?',
+            'Describe a time when you had to make a tough decision with incomplete data.',
+            'What does \"stunning colleagues\" mean to you?'
+        ]
+    },
+    'tech-tesla': {
+        name: 'Alex from Tesla',
+        personality: 'intense',
+        style: 'mission-driven',
+        questions: [
+            'Why do you want to work on accelerating sustainable energy?',
+            'Tell me about a time you solved an impossible problem.',
+            'How do you handle working in a fast-paced, high-pressure environment?',
+            'Describe a project where you had to innovate with limited resources.',
+            'What\'s the hardest technical challenge you\'ve overcome?'
+        ]
+    },
+    'tech-spacex': {
+        name: 'Taylor from SpaceX',
+        personality: 'passionate',
+        style: 'mission-critical',
+        questions: [
+            'Why do you want to help make life multiplanetary?',
+            'Tell me about a time when failure was not an option.',
+            'How do you approach designing for reliability and safety?',
+            'Describe your experience working on mission-critical systems.',
+            'What drives you to push boundaries in aerospace?'
+        ]
+    },
+    'finance-bcg': {
+        name: 'Victoria from BCG',
+        personality: 'strategic',
+        style: 'case-based',
+        questions: [
+            'Walk me through your background and why consulting.',
+            'How would you approach helping a retail client increase profitability?',
+            'Tell me about a time you led a team through a complex challenge.',
+            'Describe your approach to structuring and solving business problems.',
+            'How do you synthesize large amounts of data into actionable insights?'
+        ]
+    },
+    'finance-jpmorgan': {
+        name: 'Michael from JPMorgan',
+        personality: 'professional',
+        style: 'relationship-focused',
+        questions: [
+            'Tell me about your background in finance.',
+            'How do you build and maintain client relationships?',
+            'Describe a time you identified a market opportunity.',
+            'What\'s your approach to managing financial risk?',
+            'How do you stay informed about market conditions and trends?'
+        ]
+    },
+    'finance-blackrock': {
+        name: 'Rebecca from BlackRock',
+        personality: 'analytical',
+        style: 'investment-focused',
+        questions: [
+            'Walk me through your investment philosophy.',
+            'How do you approach portfolio risk management?',
+            'Describe a time you made a contrarian investment decision.',
+            'What factors do you consider when evaluating an asset?',
+            'How do you incorporate ESG considerations into investment decisions?'
+        ]
+    },
+    'tech-stripe': {
+        name: 'Chris from Stripe',
+        personality: 'thoughtful',
+        style: 'product-focused',
+        questions: [
+            'Tell me about your background and interest in fintech.',
+            'Describe a product you\'ve built that solved a real user problem.',
+            'How do you think about API design and developer experience?',
+            'Tell me about a time you had to balance speed with quality.',
+            'What\'s your approach to building scalable payment systems?'
+        ]
+    },
+    'tech-airbnb': {
+        name: 'Priya from Airbnb',
+        personality: 'warm',
+        style: 'community-focused',
+        questions: [
+            'What draws you to Airbnb\'s mission of belonging?',
+            'Tell me about a time you championed the user experience.',
+            'How do you approach building trust in a two-sided marketplace?',
+            'Describe a project where you had to consider diverse global perspectives.',
+            'What does being a host or guest mean to you in product development?'
+        ]
+    },
+    'tech-uber': {
+        name: 'Marcus from Uber',
+        personality: 'direct',
+        style: 'execution-focused',
+        questions: [
+            'Tell me about yourself and why Uber.',
+            'Describe a time you moved extremely fast to ship a product.',
+            'How do you approach building reliable systems at scale?',
+            'Tell me about a time you had to make tradeoffs between features.',
+            'What\'s your experience with real-time data and optimization?'
+        ]
+    },
+    'tech-salesforce': {
+        name: 'Andrea from Salesforce',
+        personality: 'values-driven',
+        style: 'stakeholder-focused',
+        questions: [
+            'How do your values align with Salesforce\'s Ohana culture?',
+            'Tell me about a time you put customers first.',
+            'Describe your approach to building enterprise software.',
+            'How do you think about trust and security in product development?',
+            'What does giving back to the community mean to you?'
+        ]
+    },
+    'tech-adobe': {
+        name: 'Kim from Adobe',
+        personality: 'creative',
+        style: 'design-focused',
+        questions: [
+            'Tell me about your experience with creative tools and workflows.',
+            'Describe a project where you balanced creativity with technical constraints.',
+            'How do you approach building tools for creative professionals?',
+            'What\'s your perspective on AI and creativity?',
+            'Tell me about a time you improved a user\'s creative workflow.'
+        ]
+    },
+    'finance-bain': {
+        name: 'Jonathan from Bain',
+        personality: 'collaborative',
+        style: 'results-oriented',
+        questions: [
+            'Tell me about yourself and your consulting aspirations.',
+            'Walk me through a time you drove measurable business impact.',
+            'How do you build relationships with C-suite executives?',
+            'Describe your approach to leading cross-functional teams.',
+            'What\'s your framework for private equity due diligence?'
+        ]
+    },
+    'tech-databricks': {
+        name: 'Raj from Databricks',
+        personality: 'technical',
+        style: 'data-focused',
+        questions: [
+            'Tell me about your experience with big data and analytics.',
+            'How do you approach building data pipelines at scale?',
+            'Describe a project where you leveraged machine learning.',
+            'What\'s your experience with distributed computing frameworks?',
+            'How do you think about data governance and quality?'
+        ]
+    },
+    'tech-snowflake': {
+        name: 'Elena from Snowflake',
+        personality: 'professional',
+        style: 'cloud-focused',
+        questions: [
+            'Walk me through your cloud computing experience.',
+            'How do you approach building multi-tenant SaaS platforms?',
+            'Tell me about a time you optimized for cost and performance.',
+            'Describe your experience with data warehousing solutions.',
+            'What\'s your approach to ensuring data platform reliability?'
+        ]
     }
 };
 
@@ -112,29 +316,77 @@ let isMicOn = true;
 let isCameraOn = true;
 let timerInterval = null;
 let isAskingQuestion = false; // Prevent multiple questions at once
+let isListening = false; // Track if currently listening
+let currentTranscript = ''; // Accumulate transcript
+let interimTranscript = ''; // Show live transcript
 
 // Initialize speech recognition
 function initSpeechRecognition() {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
+        recognition.continuous = true; // Keep listening continuously
+        recognition.interimResults = true; // Show interim results
         recognition.lang = 'en-US';
-        
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            handleUserResponse(transcript);
+
+        recognition.onstart = () => {
+            console.log('Speech recognition started');
+            isListening = true;
         };
-        
+
+        recognition.onresult = (event) => {
+            let interim = '';
+            let final = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    final += transcript + ' ';
+                } else {
+                    interim += transcript;
+                }
+            }
+
+            // Update accumulated transcript
+            if (final) {
+                currentTranscript += final;
+                console.log('Final transcript so far:', currentTranscript);
+            }
+
+            // Update interim for display
+            interimTranscript = interim;
+
+            // Display current + interim
+            const displayText = currentTranscript + (interim ? interim : '');
+            if (displayText.trim()) {
+                document.getElementById('user-text').textContent = displayText;
+                document.getElementById('user-transcript').style.display = 'block';
+            }
+        };
+
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
-            updateStatus('Error: ' + event.error);
+
+            // Ignore certain harmless errors
+            if (event.error === 'no-speech' || event.error === 'aborted') {
+                return;
+            }
+
+            // Only show error for serious issues
+            if (event.error === 'not-allowed') {
+                alert('Microphone permission denied. Please allow microphone access and refresh the page.');
+            } else if (event.error === 'audio-capture') {
+                alert('No microphone found. Please connect a microphone and try again.');
+            }
+
             stopListening();
         };
-        
+
         recognition.onend = () => {
-            stopListening();
+            console.log('Speech recognition ended');
+            isListening = false;
+
+            // Don't automatically restart - user controls this with the button
         };
     } else {
         alert('Speech recognition is not supported in your browser. Please use Chrome or Edge.');
@@ -737,37 +989,86 @@ function toggleListening() {
         alert('Speech recognition not available. Please use Chrome or Edge.');
         return;
     }
-    
-    if (recognition && recognition.state === 'listening') {
-        stopListening();
+
+    if (isListening) {
+        // Second press: Stop and finalize answer
+        finalizeAnswer();
     } else {
+        // First press: Start listening
         startListening();
     }
 }
 
 // Start listening
 function startListening() {
-    if (recognition && recognition.state !== 'listening') {
+    if (!recognition) {
+        alert('Speech recognition not available. Please use Chrome or Edge.');
+        return;
+    }
+
+    // Reset transcript for new answer
+    currentTranscript = '';
+    interimTranscript = '';
+
+    try {
         recognition.start();
         const listenBtn = document.getElementById('listen-btn');
         listenBtn.classList.add('listening');
-        document.getElementById('listen-text').textContent = 'Listening...';
+        document.getElementById('listen-text').textContent = 'Stop';
         document.getElementById('listen-icon').textContent = '🔴';
         document.getElementById('user-status').textContent = 'Speaking...';
         updateStatus('Listening...');
+
+        console.log('Started listening for user response');
+    } catch (error) {
+        console.error('Error starting recognition:', error);
+        if (error.message && !error.message.includes('already started')) {
+            alert('Could not start speech recognition: ' + error.message);
+        }
     }
 }
 
 // Stop listening
 function stopListening() {
-    if (recognition && recognition.state === 'listening') {
-        recognition.stop();
+    if (!recognition) {
+        return;
     }
+
+    try {
+        if (isListening) {
+            recognition.stop();
+        }
+    } catch (error) {
+        console.error('Error stopping recognition:', error);
+    }
+
     const listenBtn = document.getElementById('listen-btn');
     listenBtn.classList.remove('listening');
     document.getElementById('listen-text').textContent = 'Speak';
     document.getElementById('listen-icon').textContent = '🎙️';
     document.getElementById('user-status').textContent = 'Ready';
+    isListening = false;
+}
+
+// Finalize answer (called when user presses Speak button second time)
+function finalizeAnswer() {
+    console.log('Finalizing answer with transcript:', currentTranscript);
+
+    // Stop listening first
+    stopListening();
+
+    // Check if we have any transcript
+    if (!currentTranscript || currentTranscript.trim() === '') {
+        alert('No speech detected. Please try again and speak clearly.');
+        return;
+    }
+
+    // Process the response
+    handleUserResponse(currentTranscript.trim());
+
+    // Reset transcript
+    currentTranscript = '';
+    interimTranscript = '';
 }
 
 // Update status (kept for compatibility, but status is now shown in video overlay)
