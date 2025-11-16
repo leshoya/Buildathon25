@@ -6,8 +6,8 @@
 
 :root {
     /* Primary gradient colors */
-    --primary-purple: #667eea;
-    --primary-blue: #764ba2;
+    --primary-purple: #172043;
+    --primary-blue: #5e3b82;
     --dark-bg: #0f0f0f;
     --card-bg: #1a1a1a;
     --border-dark: #2d2d2d;
@@ -15,9 +15,9 @@
     --foreground: #f5f5f5;
     --card: #1a1a1a;
     --card-foreground: #f5f5f5;
-    --primary: #667eea;
+    --primary: #4e5da0;
     --primary-foreground: #ffffff;
-    --secondary: #764ba2;
+    --secondary: #402a57;
     --muted: #4a4a4a;
     --muted-foreground: #b3b3b3;
     --accent: #ff6b6b;
@@ -103,12 +103,12 @@ h1 {
 
 /* Title without uppercase - just styled normally */
 .app-title-cracked {
-    font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'Marker Felt', fantasy;
     font-size: 4.5em;
     font-weight: 800;
     letter-spacing: -0.02em;
     text-align: center;
-    background: linear-gradient(135deg, #9333ea 0%, #a855f7 50%, #c084fc 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #a855f7 50%, #c084fc 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -117,7 +117,7 @@ h1 {
 }
 
 .app-title-background {
-    font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'FreeMono', monospace;
     font-size: 6em;
     font-weight: 900;
     letter-spacing: 0.05em;
@@ -217,7 +217,7 @@ h1 {
 
 /* Landing Page Styles */
 #landing-page {
-    font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'FreeMono', monospace;
 }
 
 .selection-section {
@@ -701,7 +701,7 @@ h1 {
 
 #interview-timer {
     font-weight: 600;
-    font-family: 'Courier New', monospace;
+    font-family: 'FreeMono', monospace
 }
 
 /* Feedback Page Styles */
